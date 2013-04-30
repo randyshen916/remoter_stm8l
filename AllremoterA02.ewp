@@ -802,7 +802,7 @@
         <debug>0</debug>
         <option>
           <name>GenDeviceSelectMenu</name>
-          <state>UnspecifiedSTM8	STM8 - Unspecified</state>
+          <state>STM8L101F3P	STM8L101F3P</state>
         </option>
         <option>
           <name>GenCodeModel</name>
@@ -842,7 +842,7 @@
         </option>
         <option>
           <name>GenRTDescription</name>
-          <state></state>
+          <state>Use the normal configuration of the C/EC++ runtime library. No locale interface, C locale, no file descriptor support, no multibytes in printf and scanf, and no hex floats in strtod.</state>
         </option>
         <option>
           <name>GenRTConfigPath</name>
@@ -855,7 +855,7 @@
         </option>
         <option>
           <name>GenLibInFormatterDescription</name>
-          <state></state>
+          <state>Full formatting, without multibytes.</state>
         </option>
         <option>
           <name>GenLibOutFormatter</name>
@@ -864,15 +864,15 @@
         </option>
         <option>
           <name>GenLibOutFormatterDescription</name>
-          <state></state>
+          <state>Full formatting, without multibytes.</state>
         </option>
         <option>
           <name>GenStackSize</name>
-          <state>###Uninitialized###</state>
+          <state>0x100</state>
         </option>
         <option>
           <name>GenHeapSize</name>
-          <state>###Uninitialized###</state>
+          <state>0x100</state>
         </option>
         <option>
           <name>GeneralEnableMisra</name>
@@ -965,7 +965,7 @@
         </option>
         <option>
           <name>CCDefines</name>
-          <state>NDEBUG</state>
+          <state></state>
         </option>
         <option>
           <name>CCPreprocFile</name>
@@ -1033,8 +1033,9 @@
         </option>
         <option>
           <name>CCIncludePath2</name>
-          <state>$PROJ_DIR$\Libraries\STM8L10x_StdPeriph_Driver\inc</state>
           <state>$PROJ_DIR$</state>
+          <state>$PROJ_DIR$\inc</state>
+          <state>$PROJ_DIR$\Libraries\STM8L10x_StdPeriph_Driver\inc</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -1131,7 +1132,7 @@
         </option>
         <option>
           <name>AsmDebugInfo</name>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>AsmListFile</name>
@@ -1257,7 +1258,7 @@
         <option>
           <name>OOCOutputFormat</name>
           <version>2</version>
-          <state>0</state>
+          <state>2</state>
         </option>
         <option>
           <name>OCOutputOverride</name>
@@ -1265,7 +1266,7 @@
         </option>
         <option>
           <name>OOCOutputFile</name>
-          <state></state>
+          <state>AllremoterA02.bin</state>
         </option>
         <option>
           <name>OOCCommandLineProducer</name>
@@ -1273,7 +1274,7 @@
         </option>
         <option>
           <name>OOCObjCopyEnable</name>
-          <state>0</state>
+          <state>1</state>
         </option>
       </data>
     </settings>
@@ -1319,7 +1320,7 @@
         </option>
         <option>
           <name>IlinkOutputFile</name>
-          <state>AllremoterA02.out</state>
+          <state>templproj.out</state>
         </option>
         <option>
           <name>IlinkDebugInfoEnable</name>
@@ -1383,7 +1384,7 @@
         </option>
         <option>
           <name>IlinkIcfFile</name>
-          <state>$TOOLKIT_DIR$\config\lnkstm8.icf</state>
+          <state>$TOOLKIT_DIR$\config\lnkstm8l101f3.icf</state>
         </option>
         <option>
           <name>IlinkIcfFileSlave</name>
@@ -1502,11 +1503,11 @@
         </option>
         <option>
           <name>IlinkCspyDebugSupportEnable</name>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>IlinkCspyBufferedWrite</name>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>IlinkLogAutoLibSelect</name>
@@ -1540,7 +1541,7 @@
         </option>
         <option>
           <name>IlinkOptMergeDuplSections</name>
-          <state>0</state>
+          <state>1</state>
         </option>
       </data>
     </settings>
@@ -1561,7 +1562,7 @@
         </option>
         <option>
           <name>IarchiveOutput</name>
-          <state>###Unitialized###</state>
+          <state>E:\workspace\AllRemoter\Allremoter_audio_v02\Debug\Exe\AllremoterA02.a</state>
         </option>
       </data>
     </settings>

@@ -21,8 +21,8 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm8l10x_it.h"
-
-
+#include "rc5.h"
+extern uint32_t RC5_FrameManchestarFormat;
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
@@ -472,6 +472,9 @@ __interrupt void TIM3_UPD_OVF_TRG_BRK_IRQHandler(void)
     /* In order to detect unexpected events during development,
        it is recommended to set a breakpoint on the following instruction.
     */
+        RC5_SendFrame(RC5_FrameManchestarFormat);
+	
+	TIM3_ClearITPendingBit(TIM3_IT_Update);    
 }
 /**
   * @brief Timer3 Capture/Compare Interrupt routine.
@@ -533,7 +536,7 @@ void SPI_IRQHandler(void) interrupt 26
 #endif
 
 #ifdef _IAR_SYSTEMS_
-#pragma vector=28
+//#pragma vector=28
 //__interrupt void SPI_IRQHandler(void)
 #endif
 {

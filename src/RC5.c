@@ -93,11 +93,11 @@ uint32_t RC5_ManchesterConvert(uint16_t RC5_BinaryFrameFormat)
 		
 		if(bit_format != 0 )
 		{
-		//	ConvertedMsg|= 0b10;
+			ConvertedMsg|=0x02;
 		}
 		else        
 		{
-		//	ConvertedMsg|= 0b01;
+			ConvertedMsg|= 0x01;
     }
 	}
 	return (ConvertedMsg);

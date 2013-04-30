@@ -32,14 +32,12 @@
 
 /* Private define ------------------------------------------------------------*/
 #define BUTTON_PORT (GPIOA)
-#define BUTTON_PIN  (GPIO_Pin_5)
+#define BUTTON_PIN  (GPIO_Pin_2)
 #define SELECT_PORT (GPIOD)
 #define SELECT_PIN  (GPIO_Pin_7)
-#define LEDS_PORT (GPIOD)
-#define LED2_PIN  (GPIO_Pin_4)
-#define LED3_PIN  (GPIO_Pin_5)
-#define LED4_PIN  (GPIO_Pin_6)
-#define LEDS_PINS (GPIO_Pin_4|GPIO_Pin_5|GPIO_Pin_6)
+#define LEDS_PORT (GPIOB)
+#define LED_PIN  (GPIO_Pin_7)
+
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
  RC5_Address_TypeDef Address;
@@ -60,7 +58,7 @@ void	IRTIM_Config(void);
 /* Public variables ---------------------------------------------------------*/
  extern uint8_t Send_Operation_Completed  ; /* RC5 Flag*/
  extern uint8_t Send_Operation_Ready ;      /* RC5 Flag*/
- extern uint32_t RC5_FrameManchestarFormat;
+extern uint32_t RC5_FrameManchestarFormat;
  
 /**
   * @brief Application main entry point.
@@ -86,8 +84,8 @@ void main(void)
 	IRTIM_Config();
 	
 	/* Initialize I/Os in Output Mode */
-  GPIO_Init(LEDS_PORT, LEDS_PINS, GPIO_Mode_Out_PP_Low_Fast);
-
+  GPIO_Init(LEDS_PORT, LED_PIN, GPIO_Mode_Out_PP_Low_Fast);
+  GPIO_Init(BUTTON_PORT,BUTTON_PIN,GPIO_Mode_In_PU_No_IT);
 	
 	while(1)
 	{
@@ -101,7 +99,7 @@ void main(void)
 		  SendFrame(Address, Instruction, RC5_Ctrl1);
 			
 			/* LEDs reverse */
-      GPIO_ToggleBits(LEDS_PORT, LEDS_PINS);
+      GPIO_ToggleBits(LEDS_PORT, LED_PIN);
     }
 		
 		/* Check Joystick select status */
@@ -113,7 +111,7 @@ void main(void)
 		  SendFrame(Address, Instruction, RC5_Ctrl2);
 	
 			/* LEDs reverse */
-      GPIO_ToggleBits(LEDS_PORT, LEDS_PINS);  
+      GPIO_ToggleBits(LEDS_PORT, LED_PIN);  
     }
   }
 }
