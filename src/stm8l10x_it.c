@@ -22,6 +22,12 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm8l10x_it.h"
 #include "rc5.h"
+#include "stm8l10x_exti.h"
+
+
+
+#define LEDS_PORT (GPIOB)
+#define LED_PIN  (GPIO_Pin_7)
 extern uint32_t RC5_FrameManchestarFormat;
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -246,6 +252,10 @@ __interrupt void EXTI2_IRQHandler(void)
     /* In order to detect unexpected events during development,
        it is recommended to set a breakpoint on the following instruction.
     */
+  /* LEDs reverse */
+   GPIO_ToggleBits(LEDS_PORT, LED_PIN);  
+
+  EXTI_ClearITPendingBit(EXTI_IT_Pin2);
 }
 
 /**
