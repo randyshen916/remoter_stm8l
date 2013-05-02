@@ -21,14 +21,15 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm8l10x_it.h"
-#include "rc5.h"
+#include "stm8l10x_tim4.h"
+#include "remoter.h"
 #include "stm8l10x_exti.h"
 
 
 
 #define LEDS_PORT (GPIOB)
 #define LED_PIN  (GPIO_Pin_7)
-extern uint32_t RC5_FrameManchestarFormat;
+extern uint32_t Remoter_FrameManchestarFormat;
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
@@ -482,7 +483,7 @@ __interrupt void TIM3_UPD_OVF_TRG_BRK_IRQHandler(void)
     /* In order to detect unexpected events during development,
        it is recommended to set a breakpoint on the following instruction.
     */
-        RC5_SendFrame(RC5_FrameManchestarFormat);
+        Remoter_SendFrame(Remoter_FrameManchestarFormat);
 	
 	TIM3_ClearITPendingBit(TIM3_IT_Update);    
 }
@@ -529,6 +530,9 @@ void TIM4_UPD_OVF_IRQHandler(void) interrupt 25
 #pragma vector=27
 __interrupt void TIM4_UPD_OVF_IRQHandler(void)
 #endif
+{
+	TIM4_ClearITPendingBit(TIM4_IT_Update);    
+}
 
 /**
   * @brief SPI Interrupt routine.
@@ -549,11 +553,11 @@ void SPI_IRQHandler(void) interrupt 26
 //#pragma vector=28
 //__interrupt void SPI_IRQHandler(void)
 #endif
-{
+
     /* In order to detect unexpected events during development,
        it is recommended to set a breakpoint on the following instruction.
     */
-}
+
 /**
   * @brief USART TX Interrupt routine.
   * @par Parameters:

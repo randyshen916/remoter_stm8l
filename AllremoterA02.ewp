@@ -1573,10 +1573,13 @@
     </settings>
   </configuration>
   <file>
+    <name>$PROJ_DIR$\src\bsp.c</name>
+  </file>
+  <file>
     <name>$PROJ_DIR$\src\main.c</name>
   </file>
   <file>
-    <name>$PROJ_DIR$\src\RC5.c</name>
+    <name>$PROJ_DIR$\src\remoter.c</name>
   </file>
   <file>
     <name>$PROJ_DIR$\Libraries\STM8L10x_StdPeriph_Driver\src\stm8l10x_awu.c</name>
