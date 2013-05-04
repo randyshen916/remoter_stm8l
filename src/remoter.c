@@ -20,24 +20,24 @@
   */
 /* Includes ------------------------------------------------------------------*/	
 #include "remoter.h"
+#include "myMath.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 
 /* to avoid collusion, this value can be updated for thin adjust*/
-#define CollusionAvoidAjust ((uint8_t)0)
+
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 /* Public variables ---------------------------------------------------------*/
-uint8_t Remoter_RealFrameLength = 14;
-uint8_t Remoter_GlobalFrameLength = 64;
-uint16_t Remoter_FrameBinaryFormat=0;
-uint32_t Remoter_FrameManchestarFormat = 0;
+
 uint8_t Send_Operation_Ready = 0x00;
 uint8_t Send_Operation_Completed =0x01;
 uint8_t BitsSent_Counter = 0x00;
+
+RemoterData remoterData;
 /* Public functions ----------------------------------------------------------*/
 
 /**
@@ -52,72 +52,178 @@ uint8_t BitsSent_Counter = 0x00;
 	* @param[in] Remoter_Ctrl : Select the device control bit status from @ref Remoter_Ctrl_TypeDef enumeration.
   * @retval Binary format of the Remoter Frame.
   */
-uint16_t Remoter_BinFrameGeneration(Remoter_Address_TypeDef Remoter_Address, 
-                           Remoter_Instruction_TypeDef Remoter_Instruction, 
-									         Remoter_Ctrl_TypeDef Remoter_Ctrl)
+void Remoter_BinFrameGeneration( void)
 {
-	uint16_t star1 = 0x2000;
-	uint16_t star2 = 0x1000;
-	uint16_t addr = 0;
-	
+	uint8_t i=REMOTER_BUFF_SIZE;
 	while(Send_Operation_Completed == 0x00) 
 	{ 
   }
-
 	Send_Operation_Ready = 0;
-	Remoter_FrameManchestarFormat = 0;
-	Remoter_FrameBinaryFormat=0;
-	addr = ((uint16_t)(Remoter_Address))<<6;
-	Remoter_FrameBinaryFormat =  (star1)|(star2)|(Remoter_Ctrl)|(addr)|(Remoter_Instruction);
-	return (Remoter_FrameBinaryFormat);
-}
+	while (i--){
+		remoterData.Remoter_DataFrameFormat[i]=0;
+		}
+	switch (remoterData.remoteType){
+		case NEC_STD1:
+			NEC_STD1_BinFrameGeneration();
+			break;
+		case DTV_STD1:
+			DTV_STD1_BinFrameGeneration();
+			break;
+		default :
+			break;
+		}
+	
+	
 
+	
+	
+	//Remoter_FrameBinaryFormat =  ;
+	/* Set the Send operation Ready flag to indicate that the frame is ready to be sent */
+	Send_Operation_Ready = 1;
+	return ;
+}
+/**
+  * @brief Generate the binary format of the NEC_STD1 Remoter frame.
+  * @param[in] Remoter_Address : Select the device adress from remoterData
+  * @retval Binary format of the Remoter Frame.
+  */
+void DTV_STD1_BinFrameGeneration(void){
+	uint32_t Remoter_RealData=0;
+	uint8_t frame_length;
+	uint8_t end_length ;
+	uint8_t i=0;
+	remoterData.carrfreq=38;
+	remoterData.singleframe=560;
+	remoterData.headFrame=1800;
+	Remoter_RealData|=(uint32_t)remoterData.custom3<<16;
+	Remoter_RealData|=(uint32_t)remoterData.custom2<<8;
+	Remoter_RealData|=(uint32_t)remoterData.custom1;
+	remoterData.CustomFrameLength= 0;
+	for (i=0;i<24;i++){
+		if(Remoter_RealData&0x01){
+			Rshift(remoterData.Remoter_CustomFrameFormat,REMOTER_BUFF_SIZE, 3);
+			remoterData.Remoter_CustomFrameFormat[REMOTER_BUFF_SIZE-1]|=0x04;
+			remoterData.CustomFrameLength+=3;
+			
+			}
+		else{
+			Rshift(remoterData.Remoter_CustomFrameFormat,REMOTER_BUFF_SIZE, 2);
+			remoterData.Remoter_CustomFrameFormat[REMOTER_BUFF_SIZE-1]|=0x02;
+			remoterData.CustomFrameLength+=2;
+			
+			}
+		Remoter_RealData>>=1;
+		}
+		
+	end_length=32*REMOTER_BUFF_SIZE-remoterData.CustomFrameLength;
+	Rshift(remoterData.Remoter_CustomFrameFormat,REMOTER_BUFF_SIZE, end_length);
+
+	Remoter_RealData=0;
+
+
+	Remoter_RealData|=(uint32_t)remoterData.data2<<8;
+	Remoter_RealData|=(uint32_t)remoterData.data1;
+	remoterData.DataFrameLength= 0;
+	for (i=0;i<16;i++){
+		if(Remoter_RealData&0x01){
+			Rshift(remoterData.Remoter_DataFrameFormat,REMOTER_BUFF_SIZE, 3);
+			remoterData.Remoter_DataFrameFormat[REMOTER_BUFF_SIZE-1]|=0x08;
+			remoterData.DataFrameLength+=3;
+			frame_length+=3;
+			}
+		else{
+			Rshift(remoterData.Remoter_DataFrameFormat,REMOTER_BUFF_SIZE, 2);
+			remoterData.Remoter_DataFrameFormat[REMOTER_BUFF_SIZE-1]|=0x02;
+			remoterData.DataFrameLength+=2;
+			frame_length+=2;
+			}
+		Remoter_RealData>>=1;
+		}
+	Rshift(remoterData.Remoter_DataFrameFormat,REMOTER_BUFF_SIZE, 1);
+	remoterData.Remoter_DataFrameFormat[REMOTER_BUFF_SIZE-1]|=0x01;
+        remoterData.DataFrameLength+=1;
+		frame_length+=1;
+	end_length=32*REMOTER_BUFF_SIZE-remoterData.DataFrameLength;
+	Rshift(remoterData.Remoter_DataFrameFormat,REMOTER_BUFF_SIZE, end_length);
+
+	remoterData.Remoter_headFrameFormat=0x06;
+       remoterData.HeadFrameLength=3;
+
+	remoterData.Remoter_headFrameFormat2=0x06;
+       remoterData.HeadFrameLength2=3;
+	
+
+	
+	remoterData.remoterStatus=REMOTER_HEAD1;
+	Remoter_carrFreq_Set(remoterData.carrfreq);
+	Remoter_frame_set(remoterData.headFrame);
+	return ;
+	
+}
 
 /**
-  * @brief Convert the Remoter frame from binary to Manchester Format.
-  * @param[in] Remoter_BinaryFrameFormat : the Remoter frame in binary format.
-	* @retval  the Remoter frame in Manchester format.
+  * @brief Generate the binary format of the NEC_STD1 Remoter frame.
+  * @param[in] Remoter_Address : Select the device adress from remoterData
+  * @retval Binary format of the Remoter Frame.
   */
-
-uint32_t Remoter_ManchesterConvert(uint16_t Remoter_BinaryFrameFormat)
-{
+void  NEC_STD1_BinFrameGeneration(void){
+	uint32_t Remoter_RealData=0;
+	uint8_t frame_length;
+	uint8_t end_length ;
 	uint8_t i=0;
-	uint16_t Mask = 1;
-	uint16_t bit_format = 0;
-	uint32_t ConvertedMsg =0;
-  
-	for (i=0;i<Remoter_RealFrameLength;i++)
-	{
-		bit_format =((((uint16_t)(Remoter_BinaryFrameFormat))>>i)& Mask)<<i;
-		ConvertedMsg = ConvertedMsg << 2;
-		
-		if(bit_format != 0 )
-		{
-			ConvertedMsg|=0x02;
+	remoterData.carrfreq=38;
+	remoterData.singleframe=560;
+	remoterData.headFrame=2250;
+	Remoter_RealData|=(uint32_t)remoterData.data2<<24;
+	Remoter_RealData|=(uint32_t)remoterData.data1<<16;
+	Remoter_RealData|=(uint32_t)remoterData.custom2<<8;
+	Remoter_RealData|=(uint32_t)remoterData.custom1;
+	remoterData.DataFrameLength= 0;
+	for (i=0;i<32;i++){
+		if(Remoter_RealData&0x01){
+			Rshift(remoterData.Remoter_DataFrameFormat,REMOTER_BUFF_SIZE, 3);
+			remoterData.Remoter_DataFrameFormat[REMOTER_BUFF_SIZE-1]|=0x08;
+			remoterData.DataFrameLength+=4;
+			frame_length+=4;
+			}
+		else{
+			Rshift(remoterData.Remoter_DataFrameFormat,REMOTER_BUFF_SIZE, 2);
+			remoterData.Remoter_DataFrameFormat[REMOTER_BUFF_SIZE-1]|=0x02;
+			remoterData.DataFrameLength+=2;
+			frame_length+=2;
+			}
+		Remoter_RealData>>=1;
 		}
-		else        
-		{
-			ConvertedMsg|= 0x01;
-    }
-	}
-	return (ConvertedMsg);
+	Rshift(remoterData.Remoter_DataFrameFormat,REMOTER_BUFF_SIZE, 1);
+	remoterData.Remoter_DataFrameFormat[REMOTER_BUFF_SIZE-1]|=0x01;
+        remoterData.DataFrameLength+=1;
+		frame_length+=1;
+	end_length=32*REMOTER_BUFF_SIZE-remoterData.DataFrameLength;
+	Rshift(remoterData.Remoter_DataFrameFormat,REMOTER_BUFF_SIZE, end_length);
+	Remoter_carrFreq_Set(remoterData.carrfreq);
+	Remoter_frame_set(remoterData.headFrame);
+	return ;
+	
 }
+
+
 
 /**
   * @brief Send by hardware Manchester Format Remoter Frame.
   * @param[in] Remoter_BinaryFrameFormat : the Remoter frame in binary format.
 	* @retval  the Remoter frame in Manchester format.
   */
-void Remoter_SendFrame(uint32_t Remoter_ManchestarFrameFormat)
+void Remoter_SendFrame(void)
 {
-	uint8_t bit_msg = 0;
+	uint32_t bit_msg = 0;
 	
-	if( (Send_Operation_Ready == 1) && (BitsSent_Counter <= ( (Remoter_GlobalFrameLength * 2)-CollusionAvoidAjust)))
+	
+	if( (Send_Operation_Ready == 1) && (BitsSent_Counter <= remoterData.DataFrameLength))
 	{
-		Send_Operation_Completed = 0x00;
-		bit_msg = (uint8_t)((Remoter_ManchestarFrameFormat >> BitsSent_Counter)& 1);
+		remoterData.remoterStatus= REMOTER_DATA;
+		bit_msg=remoterData.Remoter_DataFrameFormat[0]&0x80000000;
 		
-		if (bit_msg== 1)
+		if (bit_msg)
 		{
 			TIM3_ForcedOC1Config(TIM3_ForcedAction_Active);
 		}
@@ -125,6 +231,7 @@ void Remoter_SendFrame(uint32_t Remoter_ManchestarFrameFormat)
 		{
 			TIM3_ForcedOC1Config(TIM3_ForcedAction_Inactive);
 		}
+		Rshift(remoterData.Remoter_DataFrameFormat,REMOTER_BUFF_SIZE, 1);
 		BitsSent_Counter++;
 	}
 	else
@@ -146,30 +253,27 @@ void Remoter_SendFrame(uint32_t Remoter_ManchestarFrameFormat)
 	* (a member of @ref Remoter_Ctrl_TypeDef enumeration).
   * @retval  None
   */
-void SendFrame(Remoter_Address_TypeDef Remoter_Address, 
-                           Remoter_Instruction_TypeDef Remoter_Instruction, 
-								           Remoter_Ctrl_TypeDef Remoter_Ctrl)
+void SendFrame(void)
 {
-	uint16_t Remoter_FrameBinaryFormat =0;
 	
- //	GPIO_ResetBits(LEDS_PORT, LED_PIN);
 	
-	/* Generate a binary format of the Frame */
-	Remoter_FrameBinaryFormat = Remoter_BinFrameGeneration(Remoter_Address, Remoter_Instruction, Remoter_Ctrl);
+ 	GPIO_ResetBits(LEDS_PORT, LED_PIN);
+	
+	
 	
 	/* Disable Interrupts */
 	disableInterrupts();
 	
-	/* Generate a Manchester format of the Frame */
-	Remoter_FrameManchestarFormat = Remoter_ManchesterConvert(Remoter_FrameBinaryFormat);
 	
-	/* Set the Send operation Ready flag to indicate that the frame is ready to be sent */
-	Send_Operation_Ready = 1;
+	/* Generate a binary format of the Frame */
+	Remoter_BinFrameGeneration();
+	
+	
 	
   /* Enable Interrupts */
 	enableInterrupts();
 	
-//	 GPIO_SetBits(LEDS_PORT, LED_PIN);
+	GPIO_SetBits(LEDS_PORT, LED_PIN);
 	 
 }
 
@@ -214,7 +318,7 @@ void Remoter_carrFreq_Set(uint16_t freq)
        TIM2_TimeBaseInit(TIM2_Prescaler_1, TIM2_CounterMode_Up, count );
 	
 	/* TIM2 channel 1 configuration */
-	TIM2_OC1Init(TIM2_OCMode_PWM1, TIM2_OutputState_Enable, 110, TIM2_OCPolarity_High, TIM2_OCIdleState_Reset );
+	TIM2_OC1Init(TIM2_OCMode_PWM1, TIM2_OutputState_Enable, count/3, TIM2_OCPolarity_Low, TIM2_OCIdleState_Reset);
 	
 	/* TIM2 Counter Enable */
 	TIM2_Cmd(ENABLE);
@@ -244,7 +348,7 @@ void Remoter_frame_set(uint16_t frame_length)
 	TIM3_TimeBaseInit(TIM3_Prescaler_1, TIM3_CounterMode_Up, count );
   
 	/* TIM3 channel 1 configuration */
-	TIM3_OC1Init(TIM3_OCMode_Timing, TIM3_OutputState_Enable, 14000, TIM3_OCPolarity_High, TIM3_OCIdleState_Reset );
+	TIM3_OC1Init(TIM3_OCMode_Timing, TIM3_OutputState_Enable,count+100, TIM3_OCPolarity_High, TIM3_OCIdleState_Reset );
 	
 	/* TIM3 interrupt Update Enable */
 	TIM3_ITConfig(TIM3_IT_Update, ENABLE);
@@ -254,7 +358,7 @@ void Remoter_frame_set(uint16_t frame_length)
 	/* Enable the TIM3 channel1 output to be connected internly to the IRTIM*/
 	TIM3_CtrlPWMOutputs(ENABLE);
 }
-/**
+
 
 
 

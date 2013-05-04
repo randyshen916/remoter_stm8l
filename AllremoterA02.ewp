@@ -1579,6 +1579,9 @@
     <name>$PROJ_DIR$\src\main.c</name>
   </file>
   <file>
+    <name>$PROJ_DIR$\src\myMath.c</name>
+  </file>
+  <file>
     <name>$PROJ_DIR$\src\remoter.c</name>
   </file>
   <file>

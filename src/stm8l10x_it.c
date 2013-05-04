@@ -21,14 +21,18 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm8l10x_it.h"
-#include "stm8l10x_tim4.h"
-#include "remoter.h"
 #include "stm8l10x_exti.h"
+#include "bsp.h"
+#include "remoter.h"
 
 
 
 #define LEDS_PORT (GPIOB)
 #define LED_PIN  (GPIO_Pin_7)
+
+uint8_t count[20];
+uint8_t count_time=0;
+
 extern uint32_t Remoter_FrameManchestarFormat;
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -250,11 +254,21 @@ void EXTI2_IRQHandler(void) interrupt 10
 __interrupt void EXTI2_IRQHandler(void)
 #endif
 {
+uint8_t i;
     /* In order to detect unexpected events during development,
        it is recommended to set a breakpoint on the following instruction.
     */
-  /* LEDs reverse */
-   GPIO_ToggleBits(LEDS_PORT, LED_PIN);  
+ for (i=0;i<20;i++){
+  count[i]=TIM4_GetCounter();
+ 	}
+//  TIM4_SetCounter(0x00);
+  if (count_time>=19){
+  	count_time=0;
+  	}
+count_time++;
+
+//TIM4_Config();
+	
 
   EXTI_ClearITPendingBit(EXTI_IT_Pin2);
 }
@@ -483,8 +497,8 @@ __interrupt void TIM3_UPD_OVF_TRG_BRK_IRQHandler(void)
     /* In order to detect unexpected events during development,
        it is recommended to set a breakpoint on the following instruction.
     */
-        Remoter_SendFrame(Remoter_FrameManchestarFormat);
-	
+  //      Remoter_SendFrame(Remoter_FrameManchestarFormat);
+	Remoter_SendFrame();
 	TIM3_ClearITPendingBit(TIM3_IT_Update);    
 }
 /**

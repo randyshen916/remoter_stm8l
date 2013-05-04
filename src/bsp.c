@@ -40,7 +40,7 @@
 /* Public variables ---------------------------------------------------------*/
 
 /**
-  * @brief Application main entry point.
+  * @brief all system initial program
   * @par Parameters:
   * None
   * @retval void None
@@ -50,7 +50,7 @@
   */
 void stm8l_initial(void)
 {
-	uint8_t i;
+	
 	
 	/* Clock configuration */
 	CLK_Config();
@@ -72,7 +72,9 @@ void stm8l_initial(void)
   GPIO_Init(AUDIO_PORT, AUDIO_OUT, GPIO_Mode_Out_PP_Low_Fast);	
   GPIO_Init(BUTTON_PORT,BUTTON_PIN,GPIO_Mode_In_PU_No_IT);
   GPIO_Init(AUDIO_PORT,AUDIO_IN,GPIO_Mode_In_FL_IT);	 	
-  EXTI_SetPinSensitivity(AUDIO_IN_EXTI, EXTI_Trigger_Falling_Low);
+  GPIO_Init(AUDIO_PORT,AUDIO_IN,GPIO_Mode_In_FL_IT);	 	
+  GPIO_Init(AUDIO_PORT,IR,GPIO_Mode_Out_OD_Low_Fast);	 
+  EXTI_SetPinSensitivity(AUDIO_IN_EXTI, EXTI_Trigger_Falling);
     /* Enable Interrupts */
 	enableInterrupts();
 	
@@ -178,6 +180,8 @@ void IRTIM_Config(void)
 {
 	/* DeInit IRTIM */
 	IRTIM_DeInit();
+
+//	IRTIM_HighSinkODCmd(ENABLE);
 	/* Enable IRTIM */
 	IRTIM_Cmd(ENABLE);
 }
@@ -190,9 +194,9 @@ void TIM4_Config(void)
 	/* TIM4 Time base configuration */
 
   
-  	TIM4_TimeBaseInit(TIM4_Prescaler_4,0);
+  	TIM4_TimeBaseInit(TIM4_Prescaler_1,0);
 
-	TIM4_SetAutoreload(100);
+	TIM4_SetAutoreload(255);
 	
  	TIM4_ARRPreloadConfig(ENABLE);
 
